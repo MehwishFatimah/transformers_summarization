@@ -23,19 +23,19 @@ class EncoderLayer(nn.Module):
         self.dropout_2 = nn.Dropout(dropout)
         
     def forward(self, x, mask):
-        print('\nEncLayer\n-----------------')
+        #print('\nEncLayer\n-----------------')
         x2 = self.norm_1(x)
-        print('x-norm1: {}'.format(x2.shape))
+        #print('x-norm1: {}'.format(x2.shape))
         
         x = x + self.dropout_1(self.attn(x2,x2,x2,mask))
-        print('x-drop: {}'.format(x.shape))
+        #print('x-drop: {}'.format(x.shape))
         
         x2 = self.norm_2(x)
-        print('x-norm2: {}'.format(x2.shape))
+        #print('x-norm2: {}'.format(x2.shape))
 
         x = x + self.dropout_2(self.ff(x2))
-        print('x-drop: {}'.format(x.shape))
-        print('-----------------')        
+        #print('x-drop: {}'.format(x.shape))
+        #print('-----------------')        
         
         return x
 
@@ -59,24 +59,24 @@ class DecoderLayer(nn.Module):
         self.ff = FeedForward(device, d_model, dropout=dropout)
 
     def forward(self, x, e_outputs, src_mask, trg_mask):
-        print('\nDecLayer\n-----------------')
+        #print('\nDecLayer\n-----------------')
         x2 = self.norm_1(x)
-        print('x-norm1: {}'.format(x2.shape))
+        #print('x-norm1: {}'.format(x2.shape))
 
         x = x + self.dropout_1(self.attn_1(x2, x2, x2, trg_mask))
-        print('x-drop: {}'.format(x.shape))
+        #print('x-drop: {}'.format(x.shape))
 
         x2 = self.norm_2(x)
-        print('x-norm2: {}'.format(x2.shape))
+        #print('x-norm2: {}'.format(x2.shape))
 
         x = x + self.dropout_2(self.attn_2(x2, e_outputs, e_outputs, src_mask))
-        print('x-drop: {}'.format(x.shape))
+        #print('x-drop: {}'.format(x.shape))
         
         x2 = self.norm_3(x)
-        print('x-norm3: {}'.format(x2.shape))
-        
+        #print('x-norm3: {}'.format(x2.shape))
+
         x = x + self.dropout_3(self.ff(x2))
-        print('x-drop: {}'.format(x.shape))
-        print('-----------------')
+        #print('x-drop: {}'.format(x.shape))
+        #print('-----------------')
         return x
 

@@ -33,19 +33,19 @@ class Encoder(nn.Module):
         self.norm = Norm(device, d_model)
 
     def forward(self, src, mask):
-        print('\nEncoder\n-----------------')
+        #print('\nEncoder\n-----------------')
         x = self.embed(src)
-        print('x-emb: {}'.format(x.shape))
+        #print('x-emb: {}'.format(x.shape))
 
         x = self.pe(x)
-        print('x-pe: {}'.format(x.shape))
+        #print('x-pe: {}'.format(x.shape))
 
         for i in range(self.N):
             x = self.layers[i](x, mask)
-            print('x-layer{}: {}'.format(i, x.shape))
+            #print('x-layer{}: {}'.format(i, x.shape))
         x = self.norm(x)
-        print('x-norm: {}'.format(x.shape))
-        print('-----------------')        
+        #print('x-norm: {}'.format(x.shape))
+        #print('-----------------')        
         return x
 
 '''---------------------------------------------------------------
@@ -60,19 +60,19 @@ class Decoder(nn.Module):
         self.norm = Norm(device, d_model)
     
     def forward(self, trg, e_outputs, src_mask, trg_mask):
-        print('\nDecoder\n-----------------')
+        #print('\nDecoder\n-----------------')
         x = self.embed(trg)
-        print('x-emb: {}'.format(x.shape))
+        #print('x-emb: {}'.format(x.shape))
 
         x = self.pe(x)
-        print('x-pe: {}'.format(x.shape))
+        #print('x-pe: {}'.format(x.shape))
         for i in range(self.N):
             x = self.layers[i](x, e_outputs, src_mask, trg_mask)
-            print('x-layer{}: {}'.format(i, x.shape))
+            #print('x-layer{}: {}'.format(i, x.shape))
         
         x = self.norm(x)
-        print('x-norm: {}'.format(x.shape))
-        print('-----------------')        
+        #print('x-norm: {}'.format(x.shape))
+        #print('-----------------')        
         return x
         
 '''---------------------------------------------------------------
@@ -87,17 +87,17 @@ class Transformer(nn.Module):
         self.out = nn.Linear(d_model, trg_vocab)
     
     def forward(self, src, trg, src_mask, trg_mask):
-        print("ENCODER")
+        #print("ENCODER")
         e_outputs = self.encoder(src, src_mask)
-        print('e_outputs: {}'.format(e_outputs.shape))
+        #print('e_outputs: {}'.format(e_outputs.shape))
         
-        print("DECODER")
+        #print("DECODER")
         d_output = self.decoder(trg, e_outputs, src_mask, trg_mask)
-        print('d_output: {}'.format(d_output.shape))
-        print()
-        print("OUTPUT")
+        #print('d_output: {}'.format(d_output.shape))
+        #print()
+        #print("OUTPUT")
         output = self.out(d_output)
-        print('output: {}'.format(output.shape))
+        #print('output: {}'.format(output.shape))
 
         return output
 
@@ -118,17 +118,11 @@ def get_model(device):
                         config.n_heads, 
                         config.dropout)
     model = model.to(device)
-    
-    if config.load_weights is not None:
-        print("loading pretrained weights...")
-        model.load_state_dict(torch.load(f'{config.load_weights}/model_weights'))
-    else:
-        for p in model.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p) 
-    
 
-    
+    for p in model.parameters():
+        if p.dim() > 1:
+            nn.init.xavier_uniform_(p) 
+        
     return model
 
 '''

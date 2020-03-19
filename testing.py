@@ -14,10 +14,13 @@ import numpy as np
 import pandas as pd
 from csv import writer
 import torch
-
 from torch.autograd import Variable
+
 from utils.loader_utils import get_data
-from model.model import S2SModel
+from model.model_helper import *
+from model.model import *
+
+from model.beam import beam_search
 from utils.lang_utils import load_vocab
 from utils.lang_utils import tensor_to_text
 
@@ -31,7 +34,7 @@ parser.add_argument('--f', type = str,   default = None,   help = 'To resume tra
 class Test(object):
 	def __init__(self, device):
 		self.device = device
-		self.model = S2SModel(device).to(self.device)
+		self.model = get_model(device)
 		self.vocab = load_vocab(config.sum_vocab_c)
 		self.file  = config.s_summaries
 	
@@ -41,9 +44,7 @@ class Test(object):
 		print('-------------Start: load_model-------------')
 		if file is not None and path.exists(file):
 			state = torch.load(file, map_location= lambda storage, location: storage)
-			self.model.encoder.load_state_dict(state["encoder_state_dict"])
-			self.model.decoder.load_state_dict(state["decoder_state_dict"])
-			self.model.reduce_state.load_state_dict(state["reduce_state_dict"])
+			self.model.load_state_dict(state["model_state"])
 			print('-------------End: load_model-------------')
 	
 	'''==============================================================================
@@ -100,17 +101,24 @@ class Test(object):
 		'''------------------------------------------------------------
 		1: Setup tensors
 		------------------------------------------------------------'''
+		input_tensor = input_tensor.squeeze()#.t()
+		target_tensor = target_tensor.squeeze()#.t()
+		#print('input_tensor: {}'.format(input_tensor.shape))
+		#print('target_tensor: {}'.format(target_tensor.shape))
+
+		input_tensor, target_tensor = input_tensor.to(self.device), target_tensor.to(self.device)
 		batch_size = input_tensor.size()[0]
 		for idx in range(batch_size): # take 1 example from batch
+			
 			# create mock batch from single example
-			input_mock, input_lens_mock = self.create_mock_batch(input_tensor[idx], input_lens[idx])
-			input_lens_mock[0] = config.max_text # there was a problem due to less text length
+			#input_mock, input_lens_mock = self.create_mock_batch(input_tensor[idx], input_lens[idx])
+			#input_lens_mock[0] = config.max_text # there was a problem due to less text length
 			#print('input_mock: {}'.format(input_mock.shape))
 			#print('input_len_mock: {}'.format(len(input_len_mock)))
 			
-			best_summary = self.model.beam_decode(input_mock, input_lens_mock)			
-			
-			self.get_text(target_tensor[idx].squeeze(), best_summary.tokens[1:])
+			best_summary = beam_search(self.device, input_tensor[idx], self.model)			
+			print('best_summary: {}'.format(best_summary.shape))
+			self.get_text(target_tensor[idx].squeeze(), best_summary.squeeze())
 	
 	'''==============================================================================
 	'''

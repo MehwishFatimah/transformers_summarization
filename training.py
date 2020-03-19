@@ -111,18 +111,18 @@ class Train(object):
         '''------------------------------------------------------------
         1: Setup tensors              
         ------------------------------------------------------------'''        
-        print('input_tensor: {}'.format(input_tensor.shape))
-        print('target_tensor: {}'.format(target_tensor.shape))
+        #print('input_tensor: {}'.format(input_tensor.shape))
+        #print('target_tensor: {}'.format(target_tensor.shape))
         # reshaping data for B x S
         input_tensor = input_tensor.squeeze()#.t()
         target_tensor = target_tensor.squeeze()#.t()
-        print('input_tensor: {}'.format(input_tensor.shape))
-        print('target_tensor: {}'.format(target_tensor.shape))
+        #print('input_tensor: {}'.format(input_tensor.shape))
+        #print('target_tensor: {}'.format(target_tensor.shape))
         
         input_tensor, target_tensor = input_tensor.to(self.device), target_tensor.to(self.device)
         input_mask, target_mask = create_masks(self.device, input_tensor, target_tensor)
-        print('input_mask: {}'.format(input_mask.shape))
-        print('target_mask: {}'.format(target_mask.shape))
+        #print('input_mask: {}'.format(input_mask.shape))
+        #print('target_mask: {}'.format(target_mask.shape))
         '''------------------------------------------------------------
         2: Clear old gradients from the last step              
         ------------------------------------------------------------'''
@@ -162,30 +162,32 @@ class Train(object):
     '''==============================================================================
     '''
     def eval_a_batch(self, input_tensor, target_tensor, input_lens, output_lens):         
-        print('eval a batch')
+        
         '''------------------------------------------------------------
         1: Setup tensors              
         ------------------------------------------------------------'''        
         input_tensor = input_tensor.squeeze()#.t()
         target_tensor = target_tensor.squeeze()#.t()
-        print('input_tensor: {}'.format(input_tensor))
-        print('input_tensor: {}'.format(input_tensor.shape))
-        print('target_tensor: {}'.format(target_tensor.shape))
+        # cuda assert error 59: max value was exceeding vocab sixe
+        #print('input_tensor: {}'.format(torch.min(input_tensor)))
+        #print('input_tensor: {}'.format(torch.max(input_tensor)))
+        #print('input_tensor: {}'.format(input_tensor.shape))
+        #print('target_tensor: {}'.format(target_tensor.shape))
         
         input_tensor, target_tensor = input_tensor.to(self.device), target_tensor.to(self.device)
         input_mask, target_mask = create_masks(self.device, input_tensor, target_tensor)
-        print('input_mask: {}'.format(input_mask.shape))
-        print('target_mask: {}'.format(target_mask.shape))
+        #print('input_mask: {}'.format(input_mask.shape))
+        #print('target_mask: {}'.format(target_mask.shape))
         '''------------------------------------------------------------
         2: passing input to model            
         ------------------------------------------------------------'''
         #print('model:\n{}'.format(self.model))
         output = self.model(input_tensor, target_tensor, input_mask, target_mask)
-        print('output: {}'.format(output.shape))
-        print()
-        print('output.view(-1, config.sum_vocab): {}'.format(output.view(-1, config.sum_vocab).shape))
-        print('target_tensor.view(-1): {}'.format(target_tensor.contiguous().view(-1).shape))
-        print()
+        #print('output: {}'.format(output.shape))
+        #print()
+        #print('output.view(-1, config.sum_vocab): {}'.format(output.view(-1, config.sum_vocab).shape))
+        #print('target_tensor.view(-1): {}'.format(target_tensor.contiguous().view(-1).shape))
+        #print()
         '''------------------------------------------------------------
         3: get loss            
         ------------------------------------------------------------'''
@@ -229,6 +231,7 @@ class Train(object):
     def start_evaluation(self, epoch, eval_loss, best_eval_loss, eval_loader):         
         print('\nstart evaluation\n')
         self.model.eval()
+        torch.no_grad()
         batch_idx = 1
         total_batch = len(eval_loader)
         '''------------------------------------------------------------
@@ -326,7 +329,7 @@ class Train(object):
             if epoch == e_epoch:
                 last_epoch = True
             file, train_loss = self.start_training(last_epoch, epoch, train_loss, train_loader)
-            #file, eval_loss, best_eval_loss = self.start_evaluation(epoch, eval_loss, best_eval_loss, eval_loader)            
+            file, eval_loss, best_eval_loss = self.start_evaluation(epoch, eval_loss, best_eval_loss, eval_loader)            
 
 
             end_time = datetime.now()

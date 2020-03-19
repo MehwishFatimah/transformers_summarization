@@ -29,9 +29,11 @@ class PositionalEncoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
         # create constant 'pe' matrix with values dependant on 
         # pos and i
+        #(pos, 2i+1) = math.cos(pos / (10000 ** ((2 * i)/d_model))), 
+        #not math.cos(pos / (10000 ** ((2 * (i + 1))/d_model))), as the code currently stands.
         
         pe = torch.zeros(max_seq_len, d_model)
-        print('pe: {}'.format(pe.shape))
+        #print('pe: {}'.format(pe.shape))
         for pos in range(max_seq_len):
             for i in range(0, d_model, 2):
                 pe[pos, i] = \
@@ -39,27 +41,27 @@ class PositionalEncoder(nn.Module):
                 pe[pos, i + 1] = \
                 math.cos(pos / (10000 ** ((2 * (i + 1))/d_model)))
         pe = pe.unsqueeze(0)
-        print('pe: {}'.format(pe.shape))
+        #print('pe: {}'.format(pe.shape))
         self.register_buffer('pe', pe)
  
     
     def forward(self, x):
-        print('\nPosEncoder\n-----------------')
+        #print('\nPosEncoder\n-----------------')
         # make embeddings relatively larger
-        print('x: {}'.format(x.shape))
-        print('x: {}'.format(x))
-        print('math.sqrt(self.d_model): {}'.format(math.sqrt(self.d_model)))
+        #print('x: {}'.format(x.shape))
+        #print('x: {}'.format(x))
+        #print('math.sqrt(self.d_model): {}'.format(math.sqrt(self.d_model)))
         x = x * math.sqrt(self.d_model)
-        print('x: {}'.format(x.shape))
-        print('after sqt x: {}'.format(x))
+        #print('x: {}'.format(x.shape))
+        ##print('after sqt x: {}'.format(x))
         #add constant to embedding
         seq_len = x.size(1)
-        print('seq_len: {}'.format(seq_len))
+        #print('seq_len: {}'.format(seq_len))
 
         pe = Variable(self.pe[:,:seq_len], requires_grad=False)
-        print('pe: {}'.format(pe.shape))
+        #print('pe: {}'.format(pe.shape))
         pe.to(self.device)
         x = x + pe
-        print('x + pe: {}'.format(x.shape))
-        print('-----------------') 
+        #print('x + pe: {}'.format(x.shape))
+        #print('-----------------') 
         return self.dropout(x)

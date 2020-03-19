@@ -22,7 +22,7 @@ from utils.memory_utils import get_size
 
 from data_processing import Process
 from training import Train
-#from testing import Test
+from testing import Test
 #from evaluation import Evaluate
 
 import model_config as config

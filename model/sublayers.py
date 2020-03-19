@@ -62,38 +62,40 @@ class MultiHeadAttention(nn.Module):
         self.out = nn.Linear(d_model, d_model)
     
     def forward(self, q, k, v, mask=None):
-        print('\nMHA\n-----------------')
+        #print('\nMHA\n-----------------')
         bs = q.size(0)
-        print('batch_size: {}'.format(bs))
+        #print('batch_size: {}'.format(bs))
+        #print('self.d_k: {}'.format(self.d_k))
+        #print('self.h: {}'.format(self.h))
 
         # perform linear operation and split into N heads
         k = self.k_linear(k).view(bs, -1, self.h, self.d_k)
-        print('k: {}'.format(k.shape))
+        #print('k: {}'.format(k.shape))
         q = self.q_linear(q).view(bs, -1, self.h, self.d_k)
-        print('q: {}'.format(q.shape))
+        #print('q: {}'.format(q.shape))
         v = self.v_linear(v).view(bs, -1, self.h, self.d_k)
-        print('v: {}'.format(v.shape))
+        #print('v: {}'.format(v.shape))
         
         # transpose to get dimensions bs * N * sl * d_model
         k = k.transpose(1,2)
         q = q.transpose(1,2)
         v = v.transpose(1,2)
-        print('k: {}'.format(k.shape))
-        print('q: {}'.format(q.shape))
-        print('v: {}'.format(v.shape))
+        #print('k: {}'.format(k.shape))
+        #print('q: {}'.format(q.shape))
+        #print('v: {}'.format(v.shape))
 
         # calculate attention using function we will define next
         scores = attention(q, k, v, self.d_k, mask, self.dropout)
-        print('scores: {}'.format(scores.shape))
+        #print('scores: {}'.format(scores.shape))
         
         # concatenate heads and put through final linear layer
         concat = scores.transpose(1,2).contiguous()\
         .view(bs, -1, self.d_model)
-        print('concat: {}'.format(concat.shape))
+        #print('concat: {}'.format(concat.shape))
         
         output = self.out(concat)
-        print('output: {}'.format(output.shape))
-        print('-----------------')
+        #print('output: {}'.format(output.shape))
+        #print('-----------------')
         return output
 
 class FeedForward(nn.Module):
@@ -106,11 +108,11 @@ class FeedForward(nn.Module):
         self.linear_2 = nn.Linear(d_ff, d_model)
     
     def forward(self, x):
-        print('\nFF\n-----------------')
+        #print('\nFF\n-----------------')
         x = self.dropout(F.relu(self.linear_1(x)))
-        print('x-linear-relu-drop: {}'.format(x.shape))
+        #print('x-linear-relu-drop: {}'.format(x.shape))
 
         x = self.linear_2(x)
-        print('x-linear: {}'.format(x.shape))
-        print('-----------------')
+        #print('x-linear: {}'.format(x.shape))
+        #print('-----------------')
         return x

@@ -47,13 +47,13 @@ EP_index  	= 3
 # Hyperparameters
 emb_dim	 	= 100
 hid_dim	 	= 100
-batch_size  	= 8 # 8 
-beam_size	= 8 # for BATCH SIZE8 it is 4
-
+batch_size  	= 16 # 8 
+beam_size	= 16 # for BATCH SIZE8 it is 4
+k 		= 3 # beam size in new code
 print_every	= 1
 plot_every  	= 2
 
-epochs	 	= 5 
+epochs	 	= 10
 d_model 	= 512
 n_layers	= 6  
 n_heads		= 8
